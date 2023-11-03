@@ -5,6 +5,8 @@ services:
     build: 
       ./Playlistify-api
     command: java -jar app.jar
+    links:
+      - database:mysql
     networks:
       - frontend
       - backend
@@ -16,7 +18,7 @@ services:
 
     environment:
       # pass in the url and mysql login credentials
-      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/Playlistify
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/Playlistify
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
 
