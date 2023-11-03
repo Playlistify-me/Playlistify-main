@@ -1,0 +1,75 @@
+name: playlistify
+
+services:
+  api: 
+    build: 
+      ./Playlistify-api
+    command: java -jar app.jar
+    networks:
+      - frontend
+      - backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      database:
+        condition: service_healthy
+
+    environment:
+      # pass in the url and mysql login credentials
+      SPRING_DATASOURCE_URL: jdbc:mysql://localhost:3306/Playlistify
+      SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+
+
+  interface:
+    container_name: playlistify-interface
+    build: ./Playlistify-interface
+    command: npm run start
+    networks:
+      - frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+  database:
+    container_name: playlistify-db
+    image: mysql:latest
+    networks:
+      - backend
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - mysql:/var/lib/mysql
+      - ./docker/provision/mysql/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost", "-uroot", "-ppass"]
+      interval: 1s
+      timeout: 5s
+      retries: 10
+      start_period: 60s
+
+  phpmyadmin:
+    container_name: playlistify-phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    networks:
+      - backend
+    ports:
+      - "8081:80"
+    environment:
+      PMA_PORT: 3306
+      PMA_HOST: database
+    restart: always
+    depends_on:
+      - database
+    
+networks:
+  frontend:
+    name: playlistify-frontend
+  backend:
+    name: playlistify-backend
+
+volumes:
+  mysql:
