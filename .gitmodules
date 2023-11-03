@@ -1,0 +1,6 @@
+[submodule "Playlistify-api"]
+	path = Playlistify-api
+	url = git@github.com:Playlistify-me/Playlistify-api.git
+[submodule "Playlistify-interface"]
+	path = Playlistify-interface
+	url = git@github.com:Playlistify-me/Playlistify-interface.git
